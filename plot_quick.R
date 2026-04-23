@@ -68,6 +68,16 @@ df$origin <- with(df, ifelse(
 
 df$label <- df$display_name
 
+# Omitted from redacted views that start at fruit-fly scale (full + animal panels)
+redact_microbe_mole_names <- c(
+  "E. coli (swimming)",
+  "Paramecium caudatum",
+  "C. elegans (swimming)",
+  "Naked mole-rat (walking)",
+  "Cape mole-rat (burrowing)",
+  "Pocket gopher (burrowing)"
+)
+
 # Tufte-style paper (warm off-white); also set ggsave(bg=…) so PNG is not transparent
 paper <- "#F7F6F0"
 
@@ -173,6 +183,57 @@ ggsave(file.path(plots_dir, "Full_efficiency.png"), p_full,
 ggsave(file.path(plots_dir, "plot_quick.png"), p_full,
        width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
 
+# ── Full plot, redacted: animals + vehicles, fruit-fly scale and up ─────────
+df_full_redact <- df[!df$name %in% redact_microbe_mole_names, ]
+
+p_full_redact <- ggplot(df_full_redact, aes(x = weight_kg, y = cost_of_transport_kcal_per_kg_km,
+                                             colour = medium, shape = origin)) +
+  geom_point(size = 2.1, alpha = 0.88) +
+  geom_text_repel(
+    aes(label = label),
+    size               = 2.1,
+    colour             = "grey20",
+    segment.color      = "grey55",
+    segment.size       = 0.25,
+    min.segment.length = 0.2,
+    box.padding        = 0.22,
+    point.padding      = 0.18,
+    max.overlaps       = Inf,
+    show.legend        = FALSE,
+    seed               = 45
+  ) +
+  scale_x_log10(
+    name     = "Body / vehicle mass (kg)",
+    labels   = scales::label_log(base = 10),
+    expand   = expansion(mult = c(0.04, 0.08))
+  ) +
+  scale_y_log10(
+    name     = "Cost of transport (kcal / kg / km)",
+    labels   = scales::label_log(base = 10),
+    expand   = expansion(mult = c(0.04, 0.08))
+  ) +
+  scale_colour_manual(values = medium_colours, name = "Medium") +
+  scale_shape_manual(values = origin_shapes, name = "Origin") +
+  labs(
+    title    = "How animals and machines move: cost of transport from Fruit fly to Oil Tankers",
+    subtitle = "E. coli, Paramecium, C. elegans, and fossorial mammals (naked mole-rat, Cape mole-rat, pocket gopher) omitted.",
+    caption  = "Code and data: https://github.com/cavedave/bicycle"
+  ) +
+  tufte_base() +
+  theme(
+    plot.title    = element_text(
+                     size = 20, face = "plain", colour = "grey10",
+                     margin = margin(b = 5)
+                   ),
+    plot.subtitle = element_text(
+                     size = 12, colour = "grey40", face = "italic",
+                     lineheight = 1.2, margin = margin(b = 10)
+                   )
+  )
+
+ggsave(file.path(plots_dir, "full_redact.png"), p_full_redact,
+       width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
+
 # ═══════════════════════════════════════════════════════════════════════════
 # Animal-only — no vehicles or human-powered machines (bicycles, ships, etc.)
 # ═══════════════════════════════════════════════════════════════════════════
@@ -226,16 +287,8 @@ p_animal <- ggplot(df_bio, aes(x = weight_kg, y = cost_of_transport_kcal_per_kg_
 ggsave(file.path(plots_dir, "animal_efficiency.png"), p_animal,
        width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
 
-# ── Animal panel, redacted: microbes + fossorial “mole” entries omitted ─────
-redacted_animal_names <- c(
-  "E. coli (swimming)",
-  "Paramecium caudatum",
-  "C. elegans (swimming)",
-  "Naked mole-rat (walking)",
-  "Cape mole-rat (burrowing)",
-  "Pocket gopher (burrowing)"
-)
-df_bio_redact <- df_bio[!df_bio$name %in% redacted_animal_names, ]
+# ── Animal panel, redacted: same omissions as full_redact (biology only) ────
+df_bio_redact <- df_bio[!df_bio$name %in% redact_microbe_mole_names, ]
 
 p_animal_redact <- ggplot(df_bio_redact, aes(x = weight_kg, y = cost_of_transport_kcal_per_kg_km,
                                               colour = medium)) +
