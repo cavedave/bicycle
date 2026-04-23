@@ -68,6 +68,10 @@ df$origin <- with(df, ifelse(
 
 df$label <- df$display_name
 
+# Human+equipment rows in the CSV use weight_kg = 70 kg reference person + gear
+# (bicycle, shell, skis, boat, aircraft, etc.); metabolic_rate and cost_of_transport
+# are rescaled so implied total power (met × mass) matches the source measurement.
+
 # Omitted from redacted views that start at fruit-fly scale (full + animal panels)
 redact_microbe_mole_names <- c(
   "E. coli (swimming)",
@@ -76,6 +80,12 @@ redact_microbe_mole_names <- c(
   "Naked mole-rat (walking)",
   "Cape mole-rat (burrowing)",
   "Pocket gopher (burrowing)"
+)
+
+# Omitted from full_redact only (still on unredacted full + vehicle panels)
+redact_full_redact_only_names <- c(
+  "Hang glider (rigid wing)",
+  "Paraglider (EN-C class)"
 )
 
 wilson_subtitle <- "Update of the \u201cBicycles for the mind\u201d plot (Wilson, Scientific American, 1973)"
@@ -195,15 +205,61 @@ ggsave(file.path(plots_dir, "Full_efficiency.png"), p_full,
        width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
 ggsave(file.path(plots_dir, "plot_quick.png"), p_full,
        width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
-
 # ── Full plot, redacted: animals + vehicles, fruit-fly scale and up ─────────
-df_full_redact <- df[!df$name %in% redact_microbe_mole_names, ]
+df_full_redact <- df[
+  !df$name %in% redact_microbe_mole_names &
+    !df$name %in% redact_full_redact_only_names,
+]
+
+# full_redact only: drop rows that duplicate another idea (CSV exemplars unchanged elsewhere)
+full_redact_story_omit_names <- c(
+  "Grand Commander airplane",       # second light fixed-wing; Cherokee → "Small prop plane"
+  "Yellowfin tuna (juvenile)",      # second tuna vs bluefin
+  "Adélie penguin",                 # second penguin; emperor swim + waddle kept (contrast)
+  "American cockroach",             # same display as discoid cockroach
+  "Fowler's toad (max aerobic hop)",# second toad vs slow walk
+  "Pennyplane (indoor rubber)",     # second indoor rubber model vs F1D
+  "Sikorsky S62 helicopter",        # second helicopter vs Bell JetRanger
+  "Electric RC model airplane",     # overlaps indoor-model / small-aircraft story vs F1D
+  "Common cuckoo"                   # dubious estimate; trims busy small-flyer band
+)
+df_full_redact <- df_full_redact[
+  !df_full_redact$name %in% full_redact_story_omit_names,
+]
+
+# Clearer repel text on full_redact (defaults still come from CSV `label`)
+full_redact_label_alias <- c(
+  "Cherokee airplane"          = "Small prop plane",
+  "Human on bicycle (touring)" = "Bicycle",
+  "Man"                        = "Walking",
+  "Human (running)"            = "Running",
+  "Human (front crawl)"        = "Swimming",
+  "DC 9-10 jet transport"      = "Narrow-body jet",
+  "DC 8 jet transport"         = "Wide-body jet",
+  "F105F jet fighter"          = "Jet fighter",
+  "Boeing 787-9 Dreamliner"    = "Boeing 787",
+  "Airbus A350-900"            = "Airbus A350",
+  "VLCC crude oil tanker"      = "Oil tanker",
+  "Container ship (Triple-E class)" = "Container ship",
+  "Diesel freight train (heavy haul)" = "Freight train",
+  "Suburban electric train (S-Bahn)" = "Commuter train",
+  "TGV Réseau (high-speed train)"    = "High-speed train",
+  "Transrapid TR08 maglev"     = "Maglev train",
+  "Urban tram (electric)"      = "Tram",
+  "Petrol car (family sedan)"  = "Petrol car",
+  "Electric car (BEV)"       = "Electric car",
+  "Pacific bluefin tuna (juvenile)" = "Bluefin tuna"
+)
+df_full_redact$fr_label <- as.character(df_full_redact$label)
+ix_al <- match(df_full_redact$name, names(full_redact_label_alias))
+ok_al <- !is.na(ix_al)
+df_full_redact$fr_label[ok_al] <- full_redact_label_alias[df_full_redact$name[ok_al]]
 
 p_full_redact <- ggplot(df_full_redact, aes(x = weight_kg, y = cost_of_transport_kcal_per_kg_km,
                                              colour = medium, shape = origin)) +
   geom_point(size = full_panel_pt_size, alpha = 0.88) +
   geom_text_repel(
-    aes(label = label),
+    aes(label = fr_label),
     size               = full_panel_lbl_size,
     colour             = "grey20",
     segment.color      = "grey55",
@@ -228,7 +284,7 @@ p_full_redact <- ggplot(df_full_redact, aes(x = weight_kg, y = cost_of_transport
   scale_colour_manual(values = medium_colours, name = "Medium") +
   scale_shape_manual(values = origin_shapes, name = "Origin") +
   labs(
-    title    = "How animals and machines move: cost of transport from Fruit fly to Oil Tankers",
+    title    = "How Animals and Machines Move: Cost of Transport from Fruit Fly to Oil Tankers",
     subtitle = wilson_subtitle,
     caption  = "Code and data: https://github.com/cavedave/bicycle"
   ) +
@@ -253,8 +309,8 @@ ggsave(file.path(plots_dir, "full_redact.png"), p_full_redact,
 # Animal-only — no vehicles or human-powered machines (bicycles, ships, etc.)
 # ═══════════════════════════════════════════════════════════════════════════
 # Slightly larger points + labels than the combined plot (fewer points, more room)
-panel_pt_size  <- 3.5
-panel_lbl_size <- 4.0
+panel_pt_size  <- 4.5
+panel_lbl_size <- 5.0
 
 df_bio <- df[df$origin == "biological", ]
 
@@ -345,11 +401,11 @@ p_animal_redact <- ggplot(df_bio_redact, aes(x = weight_kg, y = cost_of_transpor
   tufte_base() +
   theme(
     plot.title    = element_text(
-                     size = 20, face = "plain", colour = "grey10",
+                     size = 21, face = "plain", colour = "grey10",
                      margin = margin(b = 5)
                    ),
     plot.subtitle = element_text(
-                     size = 12, colour = "grey40", face = "italic",
+                     size = 13, colour = "grey40", face = "italic",
                      lineheight = 1.2, margin = margin(b = 10)
                    ),
     legend.title  = element_text(size = 11, face = "italic", colour = "grey35"),
@@ -417,6 +473,122 @@ p_vehicle <- ggplot(df_veh, aes(x = weight_kg, y = cost_of_transport_kcal_per_kg
   )
 
 ggsave(file.path(plots_dir, "vehicle_efficiency.png"), p_vehicle,
+       width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
+
+# ═══════════════════════════════════════════════════════════════════════════
+# People-powered only — Homo sapiens (on foot, swimming, human-powered craft)
+# Excludes passive glide / soar modes (paraglider, hang glider): their CoT in
+# the table is dominated by altitude loss and external lift (thermals, ridge),
+# not sustained muscle power like cycling, rowing, or Daedalus.
+# ═══════════════════════════════════════════════════════════════════════════
+people_pt_size  <- 4.5
+people_lbl_size <- 5.2
+
+people_exclude_passive_glide <- c(
+  "Paraglider (EN-C class)",
+  "Hang glider (rigid wing)"
+)
+
+df_people <- df[
+  !is.na(df$scientific_name) & df$scientific_name == "Homo sapiens" &
+    !df$name %in% people_exclude_passive_glide,
+]
+
+# Shorter repel text on this panel only (whole plot is human; drop redundant words)
+people_short_label <- c(
+  "Man (walking)"    = "Walking",
+  "Human swimming"   = "Swimming",
+  "Human running"    = "Running"
+)
+df_people$people_label <- df_people$label
+m_pl <- match(df_people$display_name, names(people_short_label))
+ok_pl <- !is.na(m_pl)
+df_people$people_label[ok_pl] <- people_short_label[df_people$display_name[ok_pl]]
+
+# Touring bicycle label → "Bicycle" (plain, same as other labels); racing excluded via exemplar=0
+df_people$people_label[df_people$name == "Human on bicycle (touring)"] <- "Bicycle"
+
+p_people <- ggplot(df_people, aes(x = weight_kg, y = cost_of_transport_kcal_per_kg_km,
+                                  colour = medium, shape = origin)) +
+  geom_point(size = people_pt_size, alpha = 0.88, stroke = 0.35) +
+  geom_text_repel(
+    aes(label = people_label),
+    size               = people_lbl_size,
+    colour             = "grey20",
+    segment.size       = 0,
+    segment.color      = NA,
+    box.padding        = 0.22,
+    point.padding      = 0.18,
+    force              = 0.35,
+    force_pull         = 1.8,
+    max.overlaps       = Inf,
+    show.legend        = FALSE,
+    seed               = 41
+  ) +
+  scale_x_log10(
+    name     = "Body / equipment mass (kg)",
+    labels   = scales::label_log(base = 10),
+    expand   = expansion(mult = c(0.04, 0.12))
+  ) +
+  scale_y_log10(
+    name     = "Cost of transport (kcal / kg / km)",
+    labels   = scales::label_log(base = 10),
+    expand   = expansion(mult = c(0.04, 0.08))
+  ) +
+  scale_colour_manual(values = medium_colours, name = "Medium") +
+  scale_shape_manual(values = origin_shapes, name = "Origin") +
+  labs(
+    title    = "Human-Powered Locomotion: Cost of Transport on Land, Water, and in the Air",
+    subtitle = wilson_subtitle,
+    caption  = paste0(
+      "Daedalus 88: plotted 102 kg = 70 kg reference + 32 kg airframe (record flight 104 kg with 72 kg pilot; Wikipedia \u201cMIT Daedalus\u201d); ",
+      "log x-axis places the point near 10\u00b2 kg, not 10\u00b3. ",
+      "Code and data: https://github.com/cavedave/bicycle"
+    )
+  ) +
+  tufte_base() +
+  theme(
+    plot.title    = element_text(
+                     size = 20, face = "plain", colour = "grey10",
+                     margin = margin(b = 5)
+                   ),
+    plot.subtitle = element_text(
+                     size = 12, colour = "grey40", face = "italic",
+                     lineheight = 1.2, margin = margin(b = 10)
+                   ),
+    plot.caption  = element_text(
+                     hjust = 1, size = 7, colour = "grey45",
+                     face = "italic", margin = margin(t = 8), lineheight = 1.15
+                   ),
+    legend.title  = element_text(size = 12, face = "italic", colour = "grey35"),
+    legend.text   = element_text(size = 11.5, colour = "grey30")
+  )
+
+ggsave(file.path(plots_dir, "people_efficiency.png"), p_people,
+       width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
+
+# Same people panel with linear x and y (narrow mass range; easier to read offsets)
+p_people_linear <- p_people +
+  scale_x_continuous(
+    name   = "Body / equipment mass (kg)",
+    expand = expansion(mult = 0.06)
+  ) +
+  scale_y_continuous(
+    name   = "Cost of transport (kcal / kg / km)",
+    expand = expansion(mult = 0.06)
+  ) +
+  labs(
+    title   = paste0(
+      "Human-Powered Locomotion: Cost of Transport on Land, Water, and in the Air ",
+      "(linear scales)"
+    ),
+    caption = paste0(
+      "Daedalus 88: 102 kg = 70 kg reference + 32 kg airframe (Wikipedia \u201cMIT Daedalus\u201d). ",
+      "Code and data: https://github.com/cavedave/bicycle"
+    )
+  )
+
+ggsave(file.path(plots_dir, "people_efficiency_linear.png"), p_people_linear,
        width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
 
 cat("Saved PNGs under ", plots_dir, "/\n", sep = "")
