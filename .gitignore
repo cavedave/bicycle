@@ -1,0 +1,8 @@
+.DS_Store
+.Rhistory
+.RData
+.Rproj.user
+*.Rproj
+
+# Very large PDF (24 MB); remove this line to version it
+Scientific_American-Mar1973-Bicycle_Science.pdf
