@@ -78,6 +78,8 @@ redact_microbe_mole_names <- c(
   "Pocket gopher (burrowing)"
 )
 
+wilson_subtitle <- "Update of the \u201cBicycles for the mind\u201d plot (Wilson, Scientific American, 1973)"
+
 # Tufte-style paper (warm off-white); also set ggsave(bg=…) so PNG is not transparent
 paper <- "#F7F6F0"
 
@@ -168,7 +170,7 @@ p_full <- ggplot(df, aes(x = weight_kg, y = cost_of_transport_kcal_per_kg_km,
   scale_shape_manual(values = origin_shapes, name = "Origin") +
   labs(
     title    = "How Animals and Machines Move: Cost of Transport from Bacteria to Oil Tankers",
-    subtitle = "Update of the \u201cBicycles for the mind\u201d plot (Wilson, Scientific American, 1973)",
+    subtitle = wilson_subtitle,
     caption  = "Code and data: https://github.com/cavedave/bicycle"
   ) +
   tufte_base() +
@@ -227,7 +229,7 @@ p_full_redact <- ggplot(df_full_redact, aes(x = weight_kg, y = cost_of_transport
   scale_shape_manual(values = origin_shapes, name = "Origin") +
   labs(
     title    = "How animals and machines move: cost of transport from Fruit fly to Oil Tankers",
-    subtitle = "E. coli, Paramecium, C. elegans, and fossorial mammals (naked mole-rat, Cape mole-rat, pocket gopher) omitted.",
+    subtitle = wilson_subtitle,
     caption  = "Code and data: https://github.com/cavedave/bicycle"
   ) +
   tufte_base() +
@@ -284,14 +286,19 @@ p_animal <- ggplot(df_bio, aes(x = weight_kg, y = cost_of_transport_kcal_per_kg_
   ) +
   scale_colour_manual(values = medium_colours, name = "Medium") +
   labs(
-    title   = "How Animals Move: Cost of Transport from Bacteria to Blue Whales",
-    caption = "Code and data: https://github.com/cavedave/bicycle"
+    title    = "How Animals Move: Cost of Transport from Bacteria to Blue Whales",
+    subtitle = wilson_subtitle,
+    caption  = "Code and data: https://github.com/cavedave/bicycle"
   ) +
   tufte_base() +
   theme(
     plot.title    = element_text(
                      size = 20, face = "plain", colour = "grey10",
-                     margin = margin(b = 10)
+                     margin = margin(b = 5)
+                   ),
+    plot.subtitle = element_text(
+                     size = 12, colour = "grey40", face = "italic",
+                     lineheight = 1.2, margin = margin(b = 10)
                    ),
     legend.title  = element_text(size = 11, face = "italic", colour = "grey35"),
     legend.text   = element_text(size = 10.5, colour = "grey30")
@@ -332,7 +339,7 @@ p_animal_redact <- ggplot(df_bio_redact, aes(x = weight_kg, y = cost_of_transpor
   scale_colour_manual(values = medium_colours, name = "Medium") +
   labs(
     title    = "How Animals Move: Cost of Transport from Fruit Fly to Blue Whale",
-    subtitle = "Update of the \u201cBicycles for the mind\u201d plot (Wilson, Scientific American, 1973)",
+    subtitle = wilson_subtitle,
     caption  = "Code and data: https://github.com/cavedave/bicycle"
   ) +
   tufte_base() +
@@ -342,7 +349,7 @@ p_animal_redact <- ggplot(df_bio_redact, aes(x = weight_kg, y = cost_of_transpor
                      margin = margin(b = 5)
                    ),
     plot.subtitle = element_text(
-                     size = 11, colour = "grey40", face = "italic",
+                     size = 12, colour = "grey40", face = "italic",
                      lineheight = 1.2, margin = margin(b = 10)
                    ),
     legend.title  = element_text(size = 11, face = "italic", colour = "grey35"),
@@ -391,14 +398,19 @@ p_vehicle <- ggplot(df_veh, aes(x = weight_kg, y = cost_of_transport_kcal_per_kg
   ) +
   scale_colour_manual(values = medium_colours, name = "Medium") +
   labs(
-    title   = "Cost of Transport from Model Aircraft to Oil Tankers",
-    caption = "Code and data: https://github.com/cavedave/bicycle"
+    title    = "Cost of Transport from Model Aircraft to Oil Tankers",
+    subtitle = wilson_subtitle,
+    caption  = "Code and data: https://github.com/cavedave/bicycle"
   ) +
   tufte_base() +
   theme(
     plot.title    = element_text(
                      size = 20, face = "plain", colour = "grey10",
-                     margin = margin(b = 10)
+                     margin = margin(b = 5)
+                   ),
+    plot.subtitle = element_text(
+                     size = 12, colour = "grey40", face = "italic",
+                     lineheight = 1.2, margin = margin(b = 10)
                    ),
     legend.title  = element_text(size = 12, face = "italic", colour = "grey35"),
     legend.text   = element_text(size = 11.5, colour = "grey30")
