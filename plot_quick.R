@@ -184,20 +184,24 @@ ggsave(file.path(plots_dir, "plot_quick.png"), p_full,
        width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
 
 # ── Full plot, redacted: animals + vehicles, fruit-fly scale and up ─────────
+# Slightly fewer rows than p_full → room for larger points/labels than Full_efficiency
+full_redact_pt_size  <- 3.6
+full_redact_lbl_size <- 4.2
+
 df_full_redact <- df[!df$name %in% redact_microbe_mole_names, ]
 
 p_full_redact <- ggplot(df_full_redact, aes(x = weight_kg, y = cost_of_transport_kcal_per_kg_km,
                                              colour = medium, shape = origin)) +
-  geom_point(size = 2.1, alpha = 0.88) +
+  geom_point(size = full_redact_pt_size, alpha = 0.88) +
   geom_text_repel(
     aes(label = label),
-    size               = 2.1,
+    size               = full_redact_lbl_size,
     colour             = "grey20",
     segment.color      = "grey55",
-    segment.size       = 0.25,
-    min.segment.length = 0.2,
-    box.padding        = 0.22,
-    point.padding      = 0.18,
+    segment.size       = 0.35,
+    min.segment.length = 0.15,
+    box.padding        = 0.32,
+    point.padding      = 0.26,
     max.overlaps       = Inf,
     show.legend        = FALSE,
     seed               = 45
@@ -222,13 +226,15 @@ p_full_redact <- ggplot(df_full_redact, aes(x = weight_kg, y = cost_of_transport
   tufte_base() +
   theme(
     plot.title    = element_text(
-                     size = 20, face = "plain", colour = "grey10",
+                     size = 22, face = "plain", colour = "grey10",
                      margin = margin(b = 5)
                    ),
     plot.subtitle = element_text(
-                     size = 12, colour = "grey40", face = "italic",
+                     size = 13, colour = "grey40", face = "italic",
                      lineheight = 1.2, margin = margin(b = 10)
-                   )
+                   ),
+    legend.title  = element_text(size = 11, face = "italic", colour = "grey35"),
+    legend.text   = element_text(size = 10.5, colour = "grey30")
   )
 
 ggsave(file.path(plots_dir, "full_redact.png"), p_full_redact,
