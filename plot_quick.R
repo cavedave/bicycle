@@ -133,16 +133,17 @@ tufte_base <- function(legend_pos = c(0.985, 0.985), legend_just = c(1, 1)) {
 # ═══════════════════════════════════════════════════════════════════════════
 # Full plot — animals + vehicles + human-powered machines
 # ═══════════════════════════════════════════════════════════════════════════
-# Larger points/labels (same scale as full_redact) for Reddit / screen legibility
+# full_redact uses full_panel_*; unredacted full uses repel/title text one step smaller (denser plot)
 full_panel_pt_size  <- 3.6
 full_panel_lbl_size <- 4.2
+full_unredact_lbl_size <- full_panel_lbl_size - 1
 
 p_full <- ggplot(df, aes(x = weight_kg, y = cost_of_transport_kcal_per_kg_km,
                          colour = medium, shape = origin)) +
   geom_point(size = full_panel_pt_size, alpha = 0.88) +
   geom_text_repel(
     aes(label = label),
-    size               = full_panel_lbl_size,
+    size               = full_unredact_lbl_size,
     colour             = "grey20",
     segment.color      = "grey55",
     segment.size       = 0.35,
@@ -173,15 +174,19 @@ p_full <- ggplot(df, aes(x = weight_kg, y = cost_of_transport_kcal_per_kg_km,
   tufte_base() +
   theme(
     plot.title    = element_text(
-                     size = 22, face = "plain", colour = "grey10",
+                     size = 21, face = "plain", colour = "grey10",
                      margin = margin(b = 5)
                    ),
     plot.subtitle = element_text(
-                     size = 13, colour = "grey40", face = "italic",
+                     size = 12, colour = "grey40", face = "italic",
                      lineheight = 1.2, margin = margin(b = 10)
                    ),
-    legend.title  = element_text(size = 11, face = "italic", colour = "grey35"),
-    legend.text   = element_text(size = 10.5, colour = "grey30")
+    plot.caption  = element_text(
+                     hjust = 1, size = 7, colour = "grey45",
+                     face = "italic", margin = margin(t = 8)
+                   ),
+    legend.title  = element_text(size = 10, face = "italic", colour = "grey35"),
+    legend.text   = element_text(size = 9.5, colour = "grey30")
   )
 
 ggsave(file.path(plots_dir, "Full_efficiency.png"), p_full,
