@@ -226,7 +226,7 @@ p_full_redact <- ggplot(df_full_redact, aes(x = weight_kg, y = cost_of_transport
   scale_colour_manual(values = medium_colours, name = "Medium") +
   scale_shape_manual(values = origin_shapes, name = "Origin") +
   labs(
-    title    = "How Animals and Machines Move: Cost of Transport from Fruit Fly to Oil Tankers",
+    title    = "How animals and machines move: cost of transport from Fruit fly to Oil Tankers",
     subtitle = "E. coli, Paramecium, C. elegans, and fossorial mammals (naked mole-rat, Cape mole-rat, pocket gopher) omitted.",
     caption  = "Code and data: https://github.com/cavedave/bicycle"
   ) +
@@ -332,7 +332,7 @@ p_animal_redact <- ggplot(df_bio_redact, aes(x = weight_kg, y = cost_of_transpor
   scale_colour_manual(values = medium_colours, name = "Medium") +
   labs(
     title    = "How Animals Move: Cost of Transport from Fruit Fly to Blue Whale",
-    subtitle = "E. coli, Paramecium, C. elegans, and fossorial mammals (naked mole-rat, Cape mole-rat, pocket gopher) omitted.",
+    subtitle = "Update of the \u201cBicycles for the mind\u201d plot (Wilson, Scientific American, 1973)",
     caption  = "Code and data: https://github.com/cavedave/bicycle"
   ) +
   tufte_base() +
