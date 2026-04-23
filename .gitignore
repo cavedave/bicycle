@@ -3,6 +3,7 @@
 .RData
 .Rproj.user
 *.Rproj
+SKILL.md
 
 # Very large PDF (24 MB); remove this line to version it
-Scientific_American-Mar1973-Bicycle_Science.pdf
+papers/Scientific_American-Mar1973-Bicycle_Science.pdf

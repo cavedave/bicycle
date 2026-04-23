@@ -76,6 +76,8 @@ paper <- "#F7F6F0"
 out_w_in <- 16
 out_h_in <- 11
 out_dpi  <- 200
+plots_dir <- "plots"
+dir.create(plots_dir, recursive = TRUE, showWarnings = FALSE)
 
 # Quieter, slightly desaturated palette (Tufte: ink should not shout)
 medium_colours <- c(
@@ -166,8 +168,10 @@ p_full <- ggplot(df, aes(x = weight_kg, y = cost_of_transport_kcal_per_kg_km,
                    )
   )
 
-ggsave("Full_efficiency.png", p_full, width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
-ggsave("plot_quick.png",     p_full, width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
+ggsave(file.path(plots_dir, "Full_efficiency.png"), p_full,
+       width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
+ggsave(file.path(plots_dir, "plot_quick.png"), p_full,
+       width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Animal-only — no vehicles or human-powered machines (bicycles, ships, etc.)
@@ -219,7 +223,8 @@ p_animal <- ggplot(df_bio, aes(x = weight_kg, y = cost_of_transport_kcal_per_kg_
     legend.text   = element_text(size = 10.5, colour = "grey30")
   )
 
-ggsave("animal_efficiency.png", p_animal, width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
+ggsave(file.path(plots_dir, "animal_efficiency.png"), p_animal,
+       width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
 
 # ── Animal panel, redacted: microbes + fossorial “mole” entries omitted ─────
 redacted_animal_names <- c(
@@ -278,7 +283,8 @@ p_animal_redact <- ggplot(df_bio_redact, aes(x = weight_kg, y = cost_of_transpor
     legend.text   = element_text(size = 10.5, colour = "grey30")
   )
 
-ggsave("animal_redact.png", p_animal_redact, width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
+ggsave(file.path(plots_dir, "animal_redact.png"), p_animal_redact,
+       width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Vehicle-only — machines (land, sea, air); human-powered counted as vehicle
@@ -332,6 +338,7 @@ p_vehicle <- ggplot(df_veh, aes(x = weight_kg, y = cost_of_transport_kcal_per_kg
     legend.text   = element_text(size = 11.5, colour = "grey30")
   )
 
-ggsave("vehicle_efficiency.png", p_vehicle, width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
+ggsave(file.path(plots_dir, "vehicle_efficiency.png"), p_vehicle,
+       width = out_w_in, height = out_h_in, dpi = out_dpi, bg = paper)
 
-cat("Saved Full_efficiency.png, plot_quick.png, animal_efficiency.png, animal_redact.png, vehicle_efficiency.png\n")
+cat("Saved PNGs under ", plots_dir, "/\n", sep = "")
