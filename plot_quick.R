@@ -217,11 +217,15 @@ full_redact_story_omit_names <- c(
   "Yellowfin tuna (juvenile)",      # second tuna vs bluefin
   "Adélie penguin",                 # second penguin; emperor swim + waddle kept (contrast)
   "American cockroach",             # same display as discoid cockroach
-  "Fowler's toad (max aerobic hop)",# second toad vs slow walk
   "Pennyplane (indoor rubber)",     # second indoor rubber model vs F1D
   "Sikorsky S62 helicopter",        # second helicopter vs Bell JetRanger
   "Electric RC model airplane",     # overlaps indoor-model / small-aircraft story vs F1D
-  "Common cuckoo"                   # dubious estimate; trims busy small-flyer band
+  "Common cuckoo",                  # dubious estimate; trims busy small-flyer band
+  "Human (snowshoeing)",            # duplicate story vs walking on snow; kept in other plots
+  "Cross-country skiing (classical)", # XC vs walking cluster confusing on this panel only
+  "DC 9-10 jet transport",          # superseded / crowded vs modern narrow-bodies; kept in CSV + other plots
+  "DC 8 jet transport",             # superseded / crowded vs modern wide-bodies; kept in CSV + other plots
+  "Daedalus 88 (human-powered)"    # interesting human-powered aircraft; crowds bicycle cluster on this panel only
 )
 df_full_redact <- df_full_redact[
   !df_full_redact$name %in% full_redact_story_omit_names,
@@ -234,8 +238,6 @@ full_redact_label_alias <- c(
   "Man"                        = "Walking",
   "Human (running)"            = "Running",
   "Human (front crawl)"        = "Swimming",
-  "DC 9-10 jet transport"      = "Narrow-body jet",
-  "DC 8 jet transport"         = "Wide-body jet",
   "F105F jet fighter"          = "Jet fighter",
   "Boeing 787-9 Dreamliner"    = "Boeing 787",
   "Airbus A350-900"            = "Airbus A350",
@@ -248,18 +250,42 @@ full_redact_label_alias <- c(
   "Urban tram (electric)"      = "Tram",
   "Petrol car (family sedan)"  = "Petrol car",
   "Electric car (BEV)"       = "Electric car",
-  "Pacific bluefin tuna (juvenile)" = "Bluefin tuna"
+  "Pacific bluefin tuna (juvenile)" = "Bluefin tuna",
+  "Emperor penguin (swimming)"      = "Emperor penguin",
+  "Emperor penguin (waddling)"      = "Emperor penguin",
+  "Fowler's toad (max aerobic hop)" = "Toad hopping",
+  "Fowler's toad (slow walk)"       = "Toad (walk)",
+  "Domestic cat"                    = "Cat"
 )
 df_full_redact$fr_label <- as.character(df_full_redact$label)
 ix_al <- match(df_full_redact$name, names(full_redact_label_alias))
 ok_al <- !is.na(ix_al)
 df_full_redact$fr_label[ok_al] <- full_redact_label_alias[df_full_redact$name[ok_al]]
 
+# Repel split: main bulk; per-row nudges (cat / crawl / manatee / sea turtle / bike / quad). Emperor swim+waddle: same short label, colour = medium.
+nm_quad    <- df_full_redact$name == "Quadcopter drone (consumer)"
+nm_bike    <- df_full_redact$name == "Human on bicycle (touring)"
+nm_cat     <- df_full_redact$name == "Domestic cat"
+nm_crawl   <- df_full_redact$name == "Human (crawling)"
+nm_manatee <- df_full_redact$name == "West Indian manatee"
+nm_turtle  <- df_full_redact$name == "Green sea turtle"
+df_fr_main <- df_full_redact[
+  !nm_quad & !nm_bike & !nm_cat & !nm_crawl & !nm_manatee & !nm_turtle,
+]
+df_fr_quad     <- df_full_redact[nm_quad, ]
+df_fr_bike      <- df_full_redact[nm_bike, ]
+df_fr_cat       <- df_full_redact[nm_cat, ]
+df_fr_crawl     <- df_full_redact[nm_crawl, ]
+df_fr_manatee   <- df_full_redact[nm_manatee, ]
+df_fr_sea_turtle <- df_full_redact[nm_turtle, ]
+
 p_full_redact <- ggplot(df_full_redact, aes(x = weight_kg, y = cost_of_transport_kcal_per_kg_km,
                                              colour = medium, shape = origin)) +
   geom_point(size = full_panel_pt_size, alpha = 0.88) +
   geom_text_repel(
-    aes(label = fr_label),
+    data               = df_fr_main,
+    aes(label          = fr_label),
+    inherit.aes        = TRUE,
     size               = full_panel_lbl_size,
     colour             = "grey20",
     segment.color      = "grey55",
@@ -269,6 +295,104 @@ p_full_redact <- ggplot(df_full_redact, aes(x = weight_kg, y = cost_of_transport
     point.padding      = 0.26,
     max.overlaps       = Inf,
     show.legend        = FALSE,
+    seed               = 45
+  ) +
+  geom_text_repel(
+    data               = df_fr_cat,
+    aes(label          = fr_label),
+    inherit.aes        = TRUE,
+    size               = full_panel_lbl_size,
+    colour             = "grey20",
+    segment.color      = "grey55",
+    segment.size       = 0.35,
+    min.segment.length = 0.12,
+    box.padding        = 0.26,
+    point.padding      = 0.22,
+    max.overlaps       = Inf,
+    show.legend        = FALSE,
+    nudge_x            = 0.15,
+    nudge_y            = 0.14,
+    seed               = 45
+  ) +
+  geom_text_repel(
+    data               = df_fr_manatee,
+    aes(label          = fr_label),
+    inherit.aes        = TRUE,
+    size               = full_panel_lbl_size,
+    colour             = "grey20",
+    segment.color      = "grey55",
+    segment.size       = 0.35,
+    min.segment.length = 0.12,
+    box.padding        = 0.28,
+    point.padding      = 0.22,
+    max.overlaps       = Inf,
+    show.legend        = FALSE,
+    nudge_y            = 0.06,
+    seed               = 45
+  ) +
+  geom_text_repel(
+    data               = df_fr_crawl,
+    aes(label          = fr_label),
+    inherit.aes        = TRUE,
+    size               = full_panel_lbl_size,
+    colour             = "grey20",
+    segment.color      = "grey55",
+    segment.size       = 0.35,
+    min.segment.length = 0.12,
+    box.padding        = 0.28,
+    point.padding      = 0.22,
+    max.overlaps       = Inf,
+    show.legend        = FALSE,
+    nudge_y            = 0.11,
+    seed               = 45
+  ) +
+  geom_text_repel(
+    data               = df_fr_sea_turtle,
+    aes(label          = fr_label),
+    inherit.aes        = TRUE,
+    size               = full_panel_lbl_size,
+    colour             = "grey20",
+    segment.color      = "grey55",
+    segment.size       = 0.35,
+    min.segment.length = 0.1,
+    box.padding        = 0.28,
+    point.padding      = 0.22,
+    max.overlaps       = Inf,
+    show.legend        = FALSE,
+    nudge_y            = -0.048,
+    seed               = 45
+  ) +
+  geom_text_repel(
+    data               = df_fr_quad,
+    aes(label          = fr_label),
+    inherit.aes        = TRUE,
+    size               = full_panel_lbl_size,
+    colour             = "grey20",
+    segment.color      = "grey55",
+    segment.size       = 0.35,
+    min.segment.length = 0,
+    box.padding        = 0.12,
+    point.padding      = 0.08,
+    max.overlaps       = Inf,
+    show.legend        = FALSE,
+    seed               = 45
+  ) +
+  geom_text_repel(
+    data               = df_fr_bike,
+    aes(label          = fr_label),
+    inherit.aes        = TRUE,
+    size               = full_panel_lbl_size,
+    fontface           = "bold",
+    family             = "sans",
+    colour             = "grey20",
+    segment.color      = "grey55",
+    segment.size       = 0.35,
+    min.segment.length = 0.08,
+    box.padding        = 0.14,
+    point.padding      = 0.1,
+    max.overlaps       = Inf,
+    show.legend        = FALSE,
+    nudge_y            = 0.056,
     seed               = 45
   ) +
   scale_x_log10(
